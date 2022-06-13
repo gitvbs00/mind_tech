@@ -7,9 +7,35 @@ import Logo from './Component/Logo/Logo';
 import './App.css';
 import ImageLinkForm from './Component/ImageLinkForm/ImageLinkForm';
 import Rank from './Component/Rank/Rank';
+import FaceRecognition from "./Component/FaceRecognition/FaceRecognition";
+import Clarifai from "clarifai";
+
+const MODEL_ID = 'd02b4508df58432fbb84e800597b8959';
+const MODEL_VERSION_ID = 'visual-detector-embedder';
+const app = new Clarifai.App({
+  apiKey: '7b9f6f06bc31439e904ebd84eedf1112'
+});
 
 class App extends Component {
+  constructor() {
+    super();
+    this.state={
+      input: '',
+      imageUrl: ''
+    }
+  }
+  onInputChange =(event) =>{
+     this.setState({input: event.target.value})
+  }
 
+  onButtonSubmit = () => {
+    this.setState({imageUrl: this.state.input})
+    app.models.predict(Clarifai.FACE_DETECT_MODEL, this.state.input).then(
+      response => console.log(response)
+      ).catch(
+         err=> console.log(err)
+      );
+  }
   render() { 
     const particlesInit = async (main) => {
       console.log(main);
@@ -29,7 +55,7 @@ class App extends Component {
          <Particles
             id="tsparticles"
             init={particlesInit}
-            // loaded={particlesLoaded}
+            loaded={particlesLoaded}
             options={{
               
               fpsLimit: 120,
@@ -90,12 +116,13 @@ class App extends Component {
                   value: 0.5,
                 },
                 shape: {
-                  type: "circle",
+                  type: "square",
                 },
                 size: {
                   value: { min: 1, max: 5 },
                 },
               },
+              preset:'fire',
               detectRetina: true,
             }}
           />
@@ -103,11 +130,12 @@ class App extends Component {
         <Navigation />
         <Logo />
         <Rank />
-        <ImageLinkForm/>
-        
+        <ImageLinkForm onInputChange={this.onInputChange} onButtonSubmit={this.onButtonSubmit}/>
+        <FaceRecognition imageUrl={this.state.imageUrl}/>
       </div>
     );
   }
 }
 
 export default App;
+
